@@ -15,4 +15,4 @@ class Profession(models.Model):
         db_table = "professions"
 
     def __str__(self):
-        return "Profession: " + self.name
+        return f"Profession: {self.scope.name} - {self.name}"
