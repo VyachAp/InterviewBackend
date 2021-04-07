@@ -5,7 +5,7 @@ class Profession(models.Model):
     """Модель для профессий"""
 
     name = models.CharField("Название", max_length=128)
-    subscope = models.ForeignKey("interview.SubScope", on_delete=models.PROTECT)
+    scope = models.ForeignKey("interview.Scope", on_delete=models.PROTECT)
     description = models.TextField("Описание")
 
     class Meta:
