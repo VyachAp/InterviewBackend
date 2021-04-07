@@ -25,7 +25,7 @@ SECRET_KEY = "j)qf9f9kyom60&44)ftk7w=0$z$^88(zxsgm&&%(b-vxk#!6#$"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '52.29.66.70']
 
 
 # Application definition
@@ -79,11 +79,11 @@ WSGI_APPLICATION = "InterviewBackend.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "HOST": "127.0.0.1",
-        "PORT": "15432",
+        "HOST": "localhost",
+        "PORT": "",
         "NAME": "interview_app",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
+        "USER": "service_account",
+        "PASSWORD": "service_acc123",
     }
 }
 
