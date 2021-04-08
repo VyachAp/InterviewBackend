@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,7 @@ SECRET_KEY = "j)qf9f9kyom60&44)ftk7w=0$z$^88(zxsgm&&%(b-vxk#!6#$"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '52.29.66.70']
+ALLOWED_HOSTS = ['localhost', '52.29.66.70', '127.0.0.1']
 
 
 # Application definition
@@ -125,6 +126,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 # ======= TWILIO SETTINGS =============
 TWILIO_ACCOUNT_SID = "AC5d113d0533b67cab021d831918d3cde1"

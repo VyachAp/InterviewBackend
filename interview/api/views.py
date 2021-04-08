@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from interview.serializers.serializers import ScopeSerializer, SubScopeSerializer, QuestionSerializer
-from interview.models import Scope, SubScope, Questions
+from interview.models import Scope, SubScope, Questions, Profession
 from news_aggregator.serializers import NewsSerializer
 from news_aggregator.models import Headline
 
@@ -27,3 +27,11 @@ class QuestionsView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Questions.objects.filter(subscope=self.request.query_params['subscope'])
+
+
+class ProfessionsView(viewsets.ModelViewSet):
+    serializer_class = QuestionSerializer
+
+    def get_queryset(self):
+        return Profession.objects.filter(scope=self.request.query_params['scope'])
+
