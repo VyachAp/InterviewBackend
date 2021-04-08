@@ -84,7 +84,7 @@ DATABASES = {
         "PORT": "",
         "NAME": "interview_app",
         "USER": "service_account",
-        "PASSWORD": "service_acc123",
+        "PASSWORD": "service_acc12",
     }
 }
 
