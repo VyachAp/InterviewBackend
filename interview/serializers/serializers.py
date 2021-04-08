@@ -1,5 +1,5 @@
-from rest_framework.serializers import ModelSerializer, CharField
-from interview.models import Scope, Questions, SubScope
+from rest_framework.serializers import ModelSerializer
+from interview.models import Scope, Questions, SubScope, Profession
 
 
 class ScopeSerializer(ModelSerializer):
@@ -17,4 +17,10 @@ class QuestionSerializer(ModelSerializer):
 class SubScopeSerializer(ModelSerializer):
     class Meta:
         model = SubScope
+        fields = '__all__'
+
+
+class ProfessionSerializer(ModelSerializer):
+    class Meta:
+        model = Profession
         fields = '__all__'
