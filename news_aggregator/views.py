@@ -55,7 +55,7 @@ def scrape(request):
                 image = pre_image['data-src']
             new_headline = Headline()
             new_headline.title = header
-            new_headline.url = prefix_forbes + link
+            new_headline.url = link
             new_headline.image = image
             news_array.append(new_headline)
             counter_forbes += 1
