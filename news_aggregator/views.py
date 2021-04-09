@@ -65,6 +65,30 @@ def scrape(request):
             news_array.append(new_headline)
             counter_forbes += 1
 
+        url_vc = 'https://www.vc.ru/hr'
+        prefix_vc = 'https://www.vc.ru'
+        content_vc = session.get(url_vc, verify=False).content
+        soup = BSoup(content_vc, "html.parser")
+        news_vc = soup.find_all("div", {"class": "feed__item l-island-round"})
+        counter_vc = 0
+        for article in news_vc:
+            pre_header = article.find("div", {"class": "content-title content-title--short l-island-a"})
+            if pre_header:
+                header = pre_header.contents[0].strip()
+            pre_image = article.find("div", {"class": "andropov_image"})
+            if pre_image:
+                image = pre_image['data-image-src']
+            pre_link = article.find('a', {"class": "content-header__item content-header-number"})
+            if pre_link:
+                link = pre_link['href']
+
+            new_headline = Headline()
+            new_headline.title = header
+            new_headline.url = link
+            new_headline.image = image
+            news_array.append(new_headline)
+            counter_vc += 1
+
         random.shuffle(news_array)
         while True:
             batch = list(islice(news_array, batch_size))
