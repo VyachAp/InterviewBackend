@@ -53,6 +53,11 @@ def scrape(request):
             pre_image = article.find("img")
             if pre_image:
                 image = pre_image['data-src']
+            else:
+                inner_content = session.get(link, verify=False).content
+                inner_soup = BSoup(inner_content, "html.parser")
+                inner_image_div = inner_soup.find("div", {"class": "article__intro"})
+                image = inner_image_div.find("img")["data-src"]
             new_headline = Headline()
             new_headline.title = header
             new_headline.url = link
