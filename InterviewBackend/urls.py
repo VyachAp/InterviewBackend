@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from interview.api.login import UserLogin, UserVerify
 from news_aggregator.views import scrape
 from interview.urls import router
 
@@ -23,4 +24,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
     path("scrape/", scrape, name="scrape"),
+    path('login/', UserLogin.as_view(), name='login'),
+    path('verify/', UserVerify.as_view(), name='verify')
 ]

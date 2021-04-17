@@ -1,5 +1,5 @@
-from rest_framework.serializers import ModelSerializer
-from interview.models import Scope, Questions, SubScope, Profession
+from rest_framework.serializers import ModelSerializer, IntegerField
+from interview.models import Scope, Questions, SubScope, Profession, Account
 
 
 class ScopeSerializer(ModelSerializer):
@@ -24,3 +24,24 @@ class ProfessionSerializer(ModelSerializer):
     class Meta:
         model = Profession
         fields = '__all__'
+
+
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = Account
+        fields = ['id', 'phone', 'username', 'last_login', 'is_active', 'date_joined']
+        read_only_fields = ('last_login', 'is_active', 'date_joined')
+
+
+class AccountLoginSerializer(ModelSerializer):
+    class Meta:
+        model = Account
+        fields = ['phone']
+
+
+class AccountVerifySerializer(ModelSerializer):
+    code = IntegerField()
+
+    class Meta:
+        model = Account
+        fields = ['phone', 'code']
