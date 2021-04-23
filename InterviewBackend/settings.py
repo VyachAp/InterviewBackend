@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "interview",
     "rest_framework",
     "news_aggregator",
+    "django_cron"
 ]
 
 MIDDLEWARE = [
@@ -132,3 +133,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 TWILIO_ACCOUNT_SID = "AC5d113d0533b67cab021d831918d3cde1"
 TWILIO_AUTH_TOKEN = "89100f24a025435918a74a90bfb4f1f7"
 VERIFY_SID = "VA4ac3e17804c3a6add46a2c0e0087ed3a"
+
+# ============== CRON JOBS ===============
+CRON_CLASSES = [
+    "news_aggregator.cron.MyCronJob"]
