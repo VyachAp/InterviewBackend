@@ -12,7 +12,7 @@ class ScopeView(viewsets.ModelViewSet):
 
 class NewsView(viewsets.ModelViewSet):
     serializer_class = NewsSerializer
-    queryset = Headline.objects.all()
+    queryset = Headline.objects.order_by('-id')
 
 
 class SubScopeView(viewsets.ModelViewSet):
