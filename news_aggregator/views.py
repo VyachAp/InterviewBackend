@@ -26,6 +26,9 @@ def scrape(request):
     try:
         for article in news_hh:
             link = article["href"]
+            check = Headline.objects.filter(url=prefix_hh+link).count()
+            if check > 0:
+                continue
             image_src = str(article.find("img")["src"])
             title = article.find("span").contents[0]
             new_headline = Headline()
@@ -46,6 +49,9 @@ def scrape(request):
             if pre_link:
                 link = prefix_forbes + pre_link['href']
             else:
+                continue
+            check = Headline.objects.filter(url=link).count()
+            if check > 0:
                 continue
             pre_header = article.find("div", {"class": "card-content__title"})
             if pre_header:
@@ -81,7 +87,9 @@ def scrape(request):
             pre_link = article.find('a', {"class": "content-header__item content-header-number"})
             if pre_link:
                 link = pre_link['href']
-
+            check = Headline.objects.filter(url=link).count()
+            if check > 0:
+                continue
             new_headline = Headline()
             new_headline.title = header
             new_headline.url = link
