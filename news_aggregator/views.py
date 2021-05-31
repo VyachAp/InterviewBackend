@@ -127,6 +127,17 @@ def news_list(request):
 @api_view(("GET",))
 @renderer_classes((JSONRenderer,))
 def upgrade_to_chb(request):
+    from botocore.config import Config
+    my_config = Config(signature_version='s3v4',
+                       retries={
+                           'max_attempts': 10,
+                       },
+                       s3={'addressing_style': 'auto'},
+                       )
+
+    # Upload the file
+    s3_client = boto3.client('s3', config=my_config, region_name='eu-central-1')
+
     def upload_file(file, bucket):
         """Upload a file to an S3 bucket
 
@@ -134,16 +145,6 @@ def upgrade_to_chb(request):
         :param bucket: Bucket to upload to
         :return: True if file was uploaded, else False
         """
-        from botocore.config import Config
-        my_config = Config(signature_version='s3v4',
-                           retries={
-                               'max_attempts': 10,
-                           },
-                           s3={'addressing_style': 'auto'},
-                           )
-
-        # Upload the file
-        s3_client = boto3.client('s3', config=my_config, region_name='eu-central-1')
         try:
             bucket_filename = str(uuid.uuid4())
             response = s3_client.upload_fileobj(file, bucket, bucket_filename + '.jpg', ExtraArgs={
