@@ -4,7 +4,66 @@ from news_aggregator.models import Headline
 import random
 from itertools import islice
 from django_cron import CronJobBase, Schedule
+from PIL import Image
+from io import BytesIO
+import boto3
+from botocore.exceptions import ClientError
+import logging
+import uuid
 
+logo_url = "https://s3.eu-central-1.amazonaws.com/cti.bucket/cti_logo.png"
+from botocore.config import Config
+
+my_config = Config(signature_version='s3v4',
+                   retries={
+                       'max_attempts': 10,
+                   },
+                   s3={'addressing_style': 'auto'},
+                   )
+
+# Upload the file
+s3_client = boto3.client('s3', config=my_config, region_name='eu-central-1')
+
+
+def upload_file(file, bucket):
+    """Upload a file to an S3 bucket
+
+    :param file_name: File to upload
+    :param bucket: Bucket to upload to
+    :return: True if file was uploaded, else False
+    """
+    try:
+        bucket_filename = str(uuid.uuid4())
+        response = s3_client.upload_fileobj(file, bucket, bucket_filename + '.jpg', ExtraArgs={
+            'ACL': 'public-read'
+        })
+        url_with_params = s3_client.generate_presigned_url(
+            ClientMethod='get_object',
+            Params={
+                'Bucket': bucket,
+                'Key': bucket_filename
+            },
+            HttpMethod=None
+        )
+        url = url_with_params.split('?')[0] + '.jpg'
+    except ClientError as e:
+        logging.error(e)
+        return False
+    return url
+
+
+def grey_image(image_url):
+    try:
+        response = requests.get(image_url)
+    except:
+        return logo_url
+    img = Image.open(BytesIO(response.content))
+    grey_img = img.convert('L')
+    in_mem_file = BytesIO()
+    grey_img.save(in_mem_file, format=img.format)
+    in_mem_file.seek(0)
+    new_url = upload_file(in_mem_file, 'cti.bucket')
+    return new_url
 
 class MyCronJob(CronJobBase):
     RUN_EVERY_MINS = 1
@@ -36,7 +95,7 @@ class MyCronJob(CronJobBase):
                 new_headline = Headline()
                 new_headline.title = title
                 new_headline.url = prefix_hh + link
-                new_headline.image = image_src
+                new_headline.image = grey_image(image_src)
                 news_array.append(new_headline)
                 counter_hh += 1
 
@@ -69,11 +128,11 @@ class MyCronJob(CronJobBase):
                     if pre_image:
                         image = pre_image["data-src"]
                     else:
-                        image = None
+                        image = logo_url
                 new_headline = Headline()
                 new_headline.title = header
                 new_headline.url = link
-                new_headline.image = image
+                new_headline.image = grey_image(image)
                 news_array.append(new_headline)
                 counter_forbes += 1
 
@@ -90,6 +149,8 @@ class MyCronJob(CronJobBase):
                 pre_image = article.find("div", {"class": "andropov_image"})
                 if pre_image:
                     image = pre_image['data-image-src']
+                else:
+                    image = logo_url
                 pre_link = article.find('a', {"class": "content-header__item content-header-number"})
                 if pre_link:
                     link = pre_link['href']
@@ -99,7 +160,7 @@ class MyCronJob(CronJobBase):
                 new_headline = Headline()
                 new_headline.title = header
                 new_headline.url = link
-                new_headline.image = image
+                new_headline.image = grey_image(image)
                 news_array.append(new_headline)
                 counter_vc += 1
 
