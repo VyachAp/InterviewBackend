@@ -5,6 +5,7 @@ class Profession(models.Model):
     """Модель для профессий"""
 
     name = models.CharField("Название", max_length=128)
+    english_name = models.CharField("Название на английском", max_length=128, null=True, blank=True)
     scope = models.ForeignKey("interview.Scope", on_delete=models.PROTECT)
     description = models.TextField("Описание")
 

@@ -26,5 +26,4 @@ urlpatterns = [
     path("scrape/", scrape, name="scrape"),
     path('login/', UserLogin.as_view(), name='login'),
     path('verify/', UserVerify.as_view(), name='verify'),
-    path('chb/', upgrade_to_chb, name='chb')
 ]
