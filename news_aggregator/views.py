@@ -6,6 +6,12 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.decorators import renderer_classes, api_view
 import random
 from itertools import islice
+from PIL import Image
+from io import BytesIO
+import boto3
+from botocore.exceptions import ClientError
+import logging
+import uuid
 
 
 @api_view(('GET',))
@@ -26,7 +32,7 @@ def scrape(request):
     try:
         for article in news_hh:
             link = article["href"]
-            check = Headline.objects.filter(url=prefix_hh+link).count()
+            check = Headline.objects.filter(url=prefix_hh + link).count()
             if check > 0:
                 continue
             image_src = str(article.find("img")["src"])
@@ -116,3 +122,56 @@ def news_list(request):
         "object_list": headlines,
     }
     return Response(context)
+
+
+@api_view(("GET",))
+@renderer_classes((JSONRenderer,))
+def upgrade_to_chb(request):
+    def upload_file(file, bucket):
+        """Upload a file to an S3 bucket
+
+        :param file_name: File to upload
+        :param bucket: Bucket to upload to
+        :return: True if file was uploaded, else False
+        """
+        from botocore.config import Config
+        my_config = Config(signature_version='s3v4',
+                           retries={
+                               'max_attempts': 10,
+                           },
+                           s3={'addressing_style': 'auto'},
+                           )
+
+        # Upload the file
+        s3_client = boto3.client('s3', config=my_config, region_name='eu-central-1')
+        try:
+            bucket_filename = str(uuid.uuid4())
+            response = s3_client.upload_fileobj(file, bucket, bucket_filename + '.jpg', ExtraArgs={
+                'ACL': 'public-read'
+            })
+            url_with_params = s3_client.generate_presigned_url(
+                ClientMethod='get_object',
+                Params={
+                    'Bucket': bucket,
+                    'Key': bucket_filename
+                },
+                HttpMethod=None
+            )
+            url = url_with_params.split('?')[0] + '.jpg'
+        except ClientError as e:
+            logging.error(e)
+            return False
+        return url
+
+    for file in news_list(request).data['object_list']:
+        response = requests.get(file.image)
+        img = Image.open(BytesIO(response.content))
+        grey_img = img.convert('L')
+        in_mem_file = BytesIO()
+        grey_img.save(in_mem_file, format=img.format)
+        in_mem_file.seek(0)
+        new_url = upload_file(in_mem_file, 'cti.bucket')
+        file.image = new_url
+        file.save()
+
+    return Response(200)
