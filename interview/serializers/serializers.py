@@ -1,5 +1,5 @@
-from rest_framework.serializers import ModelSerializer, IntegerField
-from interview.models import Scope, Questions, SubScope, Profession, Account
+from rest_framework.serializers import ModelSerializer, IntegerField, SerializerMethodField
+from interview.models import Scope, Questions, SubScope, Profession, Account, ProfessionSalaries, ProfessionLinks
 
 
 class ScopeSerializer(ModelSerializer):
@@ -11,7 +11,21 @@ class ScopeSerializer(ModelSerializer):
 class QuestionSerializer(ModelSerializer):
     class Meta:
         model = Questions
-        fields = '__all__'
+        fields = ("question", "answer")
+
+
+class QuestionScopeSerializer(ModelSerializer):
+    questions = SerializerMethodField()
+
+    class Meta:
+        model = Scope
+        fields = ('id', 'name', 'questions')
+
+    def get_questions(self, obj):
+        questions = []
+        for sub_scope in SubScope.objects.filter(scope_id=obj.id):
+            questions.append({sub_scope.name: QuestionSerializer(Questions.objects.filter(subscope_id=sub_scope.id), many=True).data})
+        return questions
 
 
 class SubScopeSerializer(ModelSerializer):
@@ -45,3 +59,15 @@ class AccountVerifySerializer(ModelSerializer):
     class Meta:
         model = Account
         fields = ['phone', 'code']
+
+
+class ProfessionSalariesSerializer(ModelSerializer):
+    class Meta:
+        model = ProfessionSalaries
+        fields = '__all__'
+
+
+class ProfessionLinksSerializer(ModelSerializer):
+    class Meta:
+        model = ProfessionLinks
+        fields = '__all__'
