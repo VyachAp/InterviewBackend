@@ -26,7 +26,7 @@ class QuestionsView(viewsets.ModelViewSet):
     serializer_class = QuestionSerializer
 
     def get_queryset(self):
-        return Questions.objects.filter(subscope=self.request.query_params['subscope'])
+        return Questions.objects.filter(subscope__scope=self.request.query_params['scope'])
 
 
 class ProfessionsView(viewsets.ModelViewSet):
