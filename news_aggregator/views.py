@@ -2,7 +2,7 @@ import requests
 from rest_framework.response import Response
 from bs4 import BeautifulSoup as BSoup
 from news_aggregator.models import Headline
-from interview.models.profession import Profession
+from interview.models.profession import Profession, ProfessionSalaries
 from rest_framework.renderers import JSONRenderer
 from rest_framework.decorators import renderer_classes, api_view
 import random
@@ -212,8 +212,8 @@ def parse_zp(request):
             all_zp_to = 0
             results_zp_to = 0
             results_zp_from = 0
-            parameters = {'text': profession.name, 'area': area, 'per_page': '10'}
-            for i in range(15):
+            parameters = {'text': profession.name, 'area': area, 'per_page': '100'}
+            for i in range(5):
                 url = 'https://api.hh.ru/vacancies'
                 parameters.update({'page': i})
                 response = requests.get(url, params=parameters)
@@ -239,6 +239,14 @@ def parse_zp(request):
             if results_zp_from and results_zp_to:
                 from_zp = round_nearest(all_zp_from / results_zp_from, 1000)
                 to_zp = round_nearest(all_zp_to / results_zp_to, 1000)
+            try:
+                prof_to_db = ProfessionSalaries.objects.get(profession=profession, region=areas[area])
+                prof_to_db.high_salary = to_zp
+                prof_to_db.low_salary = from_zp
+                prof_to_db.save()
+            except ProfessionSalaries.DoesNotExist:
+                prof_to_db = ProfessionSalaries(profession=profession, region=areas[area], high_salary=to_zp, low_salary=from_zp)
+                prof_to_db.save()
 
             result.append(f'Профессия: {parameters["text"]}, нижняя вилка: {from_zp}, верхняя вилка: {to_zp}, регион: {areas[area]}')
     return Response(result)
