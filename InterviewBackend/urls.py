@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from interview.api.login import UserLogin, UserVerify
-from news_aggregator.views import scrape, upgrade_to_chb
+from news_aggregator.views import scrape, parse_zp
 from interview.urls import router
 
 
@@ -26,4 +26,5 @@ urlpatterns = [
     path("scrape/", scrape, name="scrape"),
     path('login/', UserLogin.as_view(), name='login'),
     path('verify/', UserVerify.as_view(), name='verify'),
+    path('parse_zp/', parse_zp, name="parse_zp")
 ]

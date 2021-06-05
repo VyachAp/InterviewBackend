@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer, IntegerField, SerializerMethodField
-from interview.models import Scope, Questions, SubScope, Profession, Account, ProfessionSalaries, ProfessionLinks
+from interview.models import Scope, Questions, SubScope, Profession, Account, ProfessionSalaries, ProfessionLinks, SuggestedQuestions
 
 
 class ScopeSerializer(ModelSerializer):
@@ -78,4 +78,10 @@ class ProfessionSalariesSerializer(ModelSerializer):
 class ProfessionLinksSerializer(ModelSerializer):
     class Meta:
         model = ProfessionLinks
+        fields = '__all__'
+
+
+class SuggestedQuestionsSerializer(ModelSerializer):
+    class Meta:
+        model = SuggestedQuestions
         fields = '__all__'
