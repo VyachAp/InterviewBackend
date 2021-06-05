@@ -2,6 +2,7 @@ import requests
 from rest_framework.response import Response
 from bs4 import BeautifulSoup as BSoup
 from news_aggregator.models import Headline
+from interview.models.profession import Profession
 from rest_framework.renderers import JSONRenderer
 from rest_framework.decorators import renderer_classes, api_view
 import random
@@ -12,6 +13,7 @@ import boto3
 from botocore.exceptions import ClientError
 import logging
 import uuid
+import math
 
 logo_url = "https://s3.eu-central-1.amazonaws.com/cti.bucket/cti_logo.png"
 from botocore.config import Config
@@ -191,3 +193,52 @@ def upgrade_to_chb(request):
         file.save()
 
     return Response(200)
+
+
+def round_nearest(x, multiple):
+    return math.floor(float(x) / multiple + 0.5) * multiple
+
+
+@api_view(("GET",))
+@renderer_classes((JSONRenderer,))
+def parse_zp(request):
+    areas = {'1': 'Москва',
+             '113': "Россия"}
+    result = []
+    for profession in Profession.objects.all():
+        for area in areas.keys():
+            collected_data = []
+            all_zp_from = 0
+            all_zp_to = 0
+            results_zp_to = 0
+            results_zp_from = 0
+            parameters = {'text': profession.name, 'area': area, 'per_page': '10'}
+            for i in range(15):
+                url = 'https://api.hh.ru/vacancies'
+                parameters.update({'page': i})
+                response = requests.get(url, params=parameters)
+                if response:
+                    e = response.json()
+                else:
+                    continue
+                collected_data.append(e)
+            for item in collected_data:
+                results = item['items']
+
+                for each in results:
+                    if each['salary'] is not None:
+                        salary = each['salary']
+                        if salary['from'] is not None:
+                            all_zp_from += salary['from']
+                            results_zp_from += 1
+
+                        if salary['to'] is not None:
+                            all_zp_to += salary['to']
+                            results_zp_to += 1
+
+            if results_zp_from and results_zp_to:
+                from_zp = round_nearest(all_zp_from / results_zp_from, 1000)
+                to_zp = round_nearest(all_zp_to / results_zp_to, 1000)
+
+            result.append(f'Профессия: {parameters["text"]}, нижняя вилка: {from_zp}, верхняя вилка: {to_zp}, регион: {areas[area]}')
+    return Response(result)
