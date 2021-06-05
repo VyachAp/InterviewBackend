@@ -38,9 +38,14 @@ class SubScopeSerializer(ModelSerializer):
 
 
 class ProfessionSerializer(ModelSerializer):
+    salaries = SerializerMethodField()
+
     class Meta:
         model = Profession
         fields = '__all__'
+
+    def get_salaries(self, obj):
+        return ProfessionSalariesSerializer(ProfessionSalaries.objects.filter(profession=obj.id), many=True).data
 
 
 class UserSerializer(ModelSerializer):
