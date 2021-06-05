@@ -25,6 +25,7 @@ class QuestionScopeSerializer(ModelSerializer):
         questions = []
         for sub_scope in SubScope.objects.filter(scope_id=obj.id):
             questions.append({"subscope": sub_scope.name,
+                              "subscope_id": sub_scope.id,
                               "questions": QuestionSerializer(Questions.objects.filter(subscope_id=sub_scope.id),
                                                               many=True).data})
         return questions
