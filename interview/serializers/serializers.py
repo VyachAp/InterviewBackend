@@ -11,7 +11,7 @@ class ScopeSerializer(ModelSerializer):
 class QuestionSerializer(ModelSerializer):
     class Meta:
         model = Questions
-        fields = ("question", "answer")
+        fields = ("id","question", "answer")
 
 
 class QuestionScopeSerializer(ModelSerializer):
