@@ -5,6 +5,7 @@ class Scope(models.Model):
     """Модель для сфер деятельности"""
 
     name = models.CharField("Название", max_length=128)
+    has_professions = models.BooleanField("Имеет профессии", default=True)
 
     class Meta:
         app_label = "interview"

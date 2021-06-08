@@ -8,9 +8,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, mixins, generics
 
+
 class ScopeView(viewsets.ModelViewSet):
     serializer_class = ScopeSerializer
-    queryset = Scope.objects.all()
+
+    def get_queryset(self):
+        professions = self.request.query_params.get('has_professions', False)
+        if professions:
+            return Scope.objects.filter(has_professions=True)
+        return Scope.objects.all()
+
 
 
 class NewsView(viewsets.ModelViewSet):
@@ -43,8 +50,8 @@ class SuggestedQuestionsView(viewsets.ModelViewSet):
     serializer_class = SuggestedQuestionsSerializer
     queryset = SuggestedQuestions.objects.all()
 
-    def retrieve(self,  request, *args, **kwargs):
+    def retrieve(self, request, *args, **kwargs):
         return Response('Not implemented', status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    def list(self,  request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         return Response('Not implemented', status.HTTP_405_METHOD_NOT_ALLOWED)
