@@ -108,6 +108,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
@@ -137,3 +140,7 @@ VERIFY_SID = "VA4ac3e17804c3a6add46a2c0e0087ed3a"
 # ============== CRON JOBS ===============
 CRON_CLASSES = [
     "news_aggregator.cron.MyCronJob"]
+
+# ============== AMAZON S3 ================
+AWS_ACCESS_KEY_ID = "AKIA6OSJTXSRDZGBCSDO"
+AWS_SECRET_ACCESS_KEY = "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"
