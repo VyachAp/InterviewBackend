@@ -8,6 +8,7 @@ class Profession(models.Model):
     english_name = models.CharField("Название на английском", max_length=128, null=True, blank=True)
     scope = models.ForeignKey("interview.Scope", on_delete=models.PROTECT)
     description = models.TextField("Описание")
+    image_url = models.URLField(null=True, blank=True)
 
     class Meta:
         app_label = "interview"

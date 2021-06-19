@@ -27,9 +27,9 @@ class SuggestedQuestions(models.Model):
     """Модель для предложенных вопросов"""
 
     question = models.TextField("Текст вопроса")
-    answer = models.TextField("Текст ответа")
-    scope = models.CharField("Сфера деятельности", max_length=256)
-    subscope = models.CharField("Подраздел сферы деятельности", max_length=256)
+    answer = models.TextField("Текст ответа", null=True, blank=True)
+    scope = models.CharField("Сфера деятельности", max_length=256, null=True, blank=True)
+    subscope = models.CharField("Подраздел сферы деятельности", max_length=256, null=True, blank=True)
     user = models.ForeignKey('interview.Account', related_name='Вопросы', on_delete=models.PROTECT, null=True)
 
     class Meta:
