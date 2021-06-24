@@ -35,11 +35,11 @@ class UserDetail(generics.RetrieveUpdateAPIView):
 
     def patch(self, request, *args, **kwargs):
         account = get_object_or_404(Account, pk=kwargs['id'])
-        request.data['user'] = json.loads(request.data['user'])
+        user_data = json.loads(request.data['user'])
         if request.data.get('newAvatar', None):
             avatar_url = upload_file(request.data['newAvatar'], 'cti.bucket')
-            request.data['user']['avatar'] = avatar_url
-        serializer = self.serializer_class(account, data=request.data['user'], partial=True)
+            user_data['avatar'] = avatar_url
+        serializer = self.serializer_class(account, data=user_data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
