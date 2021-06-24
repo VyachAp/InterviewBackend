@@ -27,11 +27,23 @@ class MyAccountManager(BaseUserManager):
 
 
 class Account(AbstractBaseUser):
+
+    SEX_CHOICES = [
+        ('M', "Мужской"),
+        ('F', "Женский"),
+        ('U', "Не указывать")
+    ]
     phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$',
                                  message="Phone number must be entered in the format: '+79999999999'. Up to 15 digits allowed.")
-    phone = models.CharField(validators=[phone_regex], max_length=12,
-                             blank=True)  # validators should be a list
-    username = models.CharField(max_length=30, unique=True, blank=True, null=True)
+    phone = models.CharField('Номер телефона', validators=[phone_regex], max_length=12,
+                             blank=True, unique=True, editable=False)  # validators should be a list
+    username = models.CharField("Никнейм", max_length=30, blank=True, null=True)
+    password = models.CharField(max_length=64, null=True, blank=True)
+    avatar = models.URLField("Аватар", null=True, blank=True)
+    date_of_birth = models.DateField("Дата рождения", null=True, blank=True)
+    sex = models.CharField("Пол", max_length=2, choices=SEX_CHOICES, null=True, blank=True)
+    country = models.CharField("Страна", max_length=64, null=True, blank=True)
+    city = models.CharField("Город", max_length=64, null=True, blank=True)
     name = models.CharField(max_length=20, null=True, blank=True)
     surname = models.CharField(max_length=20, null=True, blank=True)
     description = models.TextField(blank=True, null=True)

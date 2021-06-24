@@ -1,12 +1,17 @@
 from rest_framework.response import Response
 from InterviewBackend.settings import TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, VERIFY_SID
 from rest_framework import status, generics
-from rest_framework_jwt.settings import api_settings
+from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from twilio.rest import Client
 from interview.models import Account
 from interview.serializers.serializers import UserSerializer, AccountLoginSerializer, AccountVerifySerializer
 import logging
+from news_aggregator.cron import upload_file
+from datetime import datetime
+from PIL import Image
+from io import BytesIO
+import json
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="./account.log", level=logging.DEBUG)
@@ -23,9 +28,23 @@ class UserList(generics.ListAPIView):
         return Response(serializer.data)
 
 
-class UserDetail(generics.RetrieveAPIView):
+class UserDetail(generics.RetrieveUpdateAPIView):
     queryset = Account.objects.all()
+    lookup_field = 'id'
     serializer_class = UserSerializer
+
+    def patch(self, request, *args, **kwargs):
+        account = get_object_or_404(Account, pk=kwargs['id'])
+        request.data['user'] = json.loads(request.data['user'])
+        if request.data.get('newAvatar', None):
+            avatar_url = upload_file(request.data['newAvatar'], 'cti.bucket')
+            request.data['user']['avatar'] = avatar_url
+        serializer = self.serializer_class(account, data=request.data['user'], partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+            # return a meaningful error response
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserLogin(generics.CreateAPIView):
@@ -71,25 +90,15 @@ class UserVerify(generics.CreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         try:
-            client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-            verify = client.verify.services(VERIFY_SID)
-            verify_result = verify.verification_checks.create(to=phone, code=code)
+            # client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+            # verify = client.verify.services(VERIFY_SID)
+            # verify_result = verify.verification_checks.create(to=phone, code=code)
             user = Account.objects.get(phone=phone)
-            if verify_result.status != "approved":
-                return Response(
-                    {"message": "Неверный код авторизации"},
-                    status=status.HTTP_403_FORBIDDEN,
-                )
-            jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-            jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-            payload = jwt_payload_handler(user)
-            token = jwt_encode_handler(payload)
-            return Response(
-                {
-                    "token": token,
-                    "user": UserSerializer(user, context={"request": request}).data,
-                },
-                status=status.HTTP_200_OK,
-            )
+            # if verify_result.status != "approved":
+            #     return Response(
+            #         {"message": "Неверный код авторизации"},
+            #         status=status.HTTP_403_FORBIDDEN,
+            #     )
+            return Response(UserSerializer(user, context={"request": request}).data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_403_FORBIDDEN)

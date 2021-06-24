@@ -12,17 +12,10 @@ import logging
 import uuid
 
 logo_url = "https://s3.eu-central-1.amazonaws.com/cti.bucket/cti_logo.png"
-from botocore.config import Config
-
-my_config = Config(signature_version='s3v4',
-                   retries={
-                       'max_attempts': 10,
-                   },
-                   s3={'addressing_style': 'auto'},
-                   )
+from InterviewBackend.settings import S3_CONFIG
 
 # Upload the file
-s3_client = boto3.client('s3', config=my_config, region_name='eu-central-1')
+s3_client = boto3.client('s3', config=S3_CONFIG, region_name='eu-central-1')
 
 
 def upload_file(file, bucket):
@@ -64,6 +57,7 @@ def grey_image(image_url):
     in_mem_file.seek(0)
     new_url = upload_file(in_mem_file, 'cti.bucket')
     return new_url
+
 
 class MyCronJob(CronJobBase):
     RUN_EVERY_MINS = 1
@@ -169,8 +163,7 @@ class MyCronJob(CronJobBase):
                 batch = list(islice(news_array, batch_size))
                 if not batch:
                     break
-                Headline.objects.bulk_create(batch, batch_size)
+                # Headline.objects.bulk_create(batch, batch_size)
 
         except Exception as e:
             print(str(e))
-

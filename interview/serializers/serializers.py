@@ -49,11 +49,15 @@ class ProfessionSerializer(ModelSerializer):
 
 
 class UserSerializer(ModelSerializer):
+    suggested_questions_count = SerializerMethodField()
+
     class Meta:
         model = Account
-        fields = ['id', 'phone', 'username', 'last_login', 'is_active', 'date_joined']
-        read_only_fields = ('last_login', 'is_active', 'date_joined')
+        fields = ('id', 'username', 'name', 'surname', 'phone', 'avatar', 'date_of_birth', 'sex', 'country', 'city', 'last_login', 'date_joined', 'suggested_questions_count')
+        read_only_fields = ('id', 'phone', 'last_login', 'is_active', 'date_joined')
 
+    def get_suggested_questions_count(self, obj):
+        return SuggestedQuestions.objects.filter(user=obj).count()
 
 class AccountLoginSerializer(ModelSerializer):
     class Meta:

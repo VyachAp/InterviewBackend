@@ -39,8 +39,8 @@ class ProfessionSalaries(models.Model):
 
 class ProfessionLinks(models.Model):
     profession = models.ForeignKey(Profession, on_delete=models.CASCADE)
-    courses = models.URLField("Курсы", null=True)
-    vacancies = models.URLField("Вакансии", null=True)
+    courses = models.URLField("Курсы", null=True, blank=True)
+    vacancies = models.URLField("Вакансии", null=True, blank=True)
 
     class Meta:
         app_label = "interview"
