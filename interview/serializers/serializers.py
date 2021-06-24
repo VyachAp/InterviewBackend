@@ -39,6 +39,7 @@ class SubScopeSerializer(ModelSerializer):
 
 class ProfessionSerializer(ModelSerializer):
     salaries = SerializerMethodField()
+    links = SerializerMethodField()
 
     class Meta:
         model = Profession
@@ -46,6 +47,9 @@ class ProfessionSerializer(ModelSerializer):
 
     def get_salaries(self, obj):
         return ProfessionSalariesSerializer(ProfessionSalaries.objects.filter(profession=obj.id), many=True).data
+
+    def get_links(self, obj):
+        return ProfessionLinksSerializer(ProfessionLinks.objects.filter(profession=obj.id), many=True).data
 
 
 class UserSerializer(ModelSerializer):
