@@ -7,10 +7,7 @@ from twilio.rest import Client
 from interview.models import Account
 from interview.serializers.serializers import UserSerializer, AccountLoginSerializer, AccountVerifySerializer
 import logging
-from news_aggregator.cron import upload_file
-from datetime import datetime
-from PIL import Image
-from io import BytesIO
+from news_aggregator.tasks import upload_file
 import json
 
 logger = logging.getLogger(__name__)
