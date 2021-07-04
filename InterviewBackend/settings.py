@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     "interview",
     "rest_framework",
     "news_aggregator",
-    "django_cron"
+    "django_cron",
+    "django_celery_beat"
 ]
 
 MIDDLEWARE = [
@@ -132,7 +133,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
@@ -151,3 +151,12 @@ CRON_CLASSES = [
 # ============== AMAZON S3 ================
 AWS_ACCESS_KEY_ID = "AKIA6OSJTXSRDZGBCSDO"
 AWS_SECRET_ACCESS_KEY = "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"
+
+# ============== CELERY ==================
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = "Europe/Moscow"
