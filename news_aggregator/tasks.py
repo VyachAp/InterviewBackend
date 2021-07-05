@@ -170,7 +170,7 @@ def parse_news():
             batch = list(islice(news_array, batch_size))
             if not batch:
                 break
-            # Headline.objects.bulk_create(batch, batch_size)
+            Headline.objects.bulk_create(batch, batch_size)
 
     except Exception as e:
         print(str(e))
