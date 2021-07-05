@@ -14,7 +14,7 @@ import logging
 import uuid
 from interview.models.profession import Profession, ProfessionSalaries
 from InterviewBackend.settings import S3_CONFIG
-
+from datetime import datetime
 logo_url = "https://s3.eu-central-1.amazonaws.com/cti.bucket/cti_logo.png"
 
 # Upload the file
@@ -222,6 +222,7 @@ def parse_zp():
                 prof_to_db = ProfessionSalaries.objects.get(profession=profession, region=areas[area])
                 prof_to_db.high_salary = to_zp
                 prof_to_db.low_salary = from_zp
+                prof_to_db.parse_date = datetime.today()
                 prof_to_db.save()
             except ProfessionSalaries.DoesNotExist:
                 prof_to_db = ProfessionSalaries(profession=profession, region=areas[area], high_salary=to_zp,
