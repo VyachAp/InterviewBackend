@@ -17,7 +17,6 @@ from botocore.config import Config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -28,7 +27,6 @@ SECRET_KEY = "j)qf9f9kyom60&44)ftk7w=0$z$^88(zxsgm&&%(b-vxk#!6#$"
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '52.29.66.70', '127.0.0.1', '3.65.213.194']
-
 
 # Application definition
 
@@ -43,7 +41,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "news_aggregator",
     "django_cron",
-    "django_celery_beat"
+    "django_celery_beat",
+    "rest_framework.authtoken"
 ]
 
 MIDDLEWARE = [
@@ -82,7 +81,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "InterviewBackend.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -97,9 +95,9 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
+AUTH_USER_MODEL = 'interview.Account'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -118,6 +116,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  # <-- And here
+    ],
 }
 
 # Internationalization

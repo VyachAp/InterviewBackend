@@ -4,24 +4,29 @@ from django.core.validators import RegexValidator
 
 
 class MyAccountManager(BaseUserManager):
-    def create_user(self, phone):
+    def create_user(self, phone, *args, **kwargs):
         if not phone:
             raise ValueError('Не введён номер телефона')
 
         user = self.model(
             phone=phone
         )
-        user.set_unusable_password()
+        if not kwargs['superuser']:
+            user.set_unusable_password()
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, phone):
+    def create_superuser(self, phone, *args, **kwargs):
         user = self.create_user(
             phone=phone,
+            superuser=True
         )
+
+        user.is_superuser = True
         user.is_admin = True
         user.is_staff = True
-        user.is_superuser = True
+        user.set_password(kwargs['password'])
+
         user.save(using=self._db)
         return user
 
@@ -38,7 +43,7 @@ class Account(AbstractBaseUser):
     phone = models.CharField('Номер телефона', validators=[phone_regex], max_length=12,
                              blank=True, unique=True, editable=False)  # validators should be a list
     username = models.CharField("Никнейм", max_length=30, blank=True, null=True)
-    password = models.CharField(max_length=64, null=True, blank=True)
+    password = models.CharField(max_length=128, null=True, blank=True)
     avatar = models.URLField("Аватар", null=True, blank=True)
     date_of_birth = models.DateField("Дата рождения", null=True, blank=True)
     sex = models.CharField("Пол", max_length=2, choices=SEX_CHOICES, null=True, blank=True)
@@ -54,8 +59,7 @@ class Account(AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['phone']
+    USERNAME_FIELD = 'phone'
 
     objects = MyAccountManager()
 

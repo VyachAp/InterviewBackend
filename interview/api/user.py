@@ -9,6 +9,7 @@ from interview.serializers.serializers import UserSerializer, AccountLoginSerial
 import logging
 from news_aggregator.tasks import upload_file
 import json
+from rest_framework.authtoken.models import Token  # <-- Here
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="./account.log", level=logging.DEBUG)
@@ -87,15 +88,17 @@ class UserVerify(generics.CreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         try:
-            # client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-            # verify = client.verify.services(VERIFY_SID)
-            # verify_result = verify.verification_checks.create(to=phone, code=code)
+            client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+            verify = client.verify.services(VERIFY_SID)
+            verify_result = verify.verification_checks.create(to=phone, code=code)
             user = Account.objects.get(phone=phone)
-            # if verify_result.status != "approved":
-            #     return Response(
-            #         {"message": "Неверный код авторизации"},
-            #         status=status.HTTP_403_FORBIDDEN,
-            #     )
-            return Response(UserSerializer(user, context={"request": request}).data, status=status.HTTP_200_OK)
+            if verify_result.status != "approved":
+                return Response(
+                    {"message": "Неверный код авторизации"},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+            token = Token.objects.get_or_create(user=user)
+            return Response({'token': token[0].key,
+                             'user': UserSerializer(user, context={"request": request}).data}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_403_FORBIDDEN)
