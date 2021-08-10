@@ -101,6 +101,12 @@ class SuggestedQuestionsSerializer(ModelSerializer):
         fields = '__all__'
 
 
+class UserShortSerializer(UserSerializer):
+    class Meta:
+        model = Account
+        fields = ('username',)
+
+
 class PostCreateSerializer(ModelSerializer):
     class Meta:
         model = Post
@@ -113,12 +119,6 @@ class PostCommentsSerializer(ModelSerializer):
         fields = '__all__'
 
 
-class UserShortSerializer(UserSerializer):
-    class Meta:
-        model = Account
-        fields = ('username',)
-
-
 class PostsRetrieveSerializer(ModelSerializer):
     likes = SerializerMethodField()
     comments = SerializerMethodField()
@@ -127,7 +127,8 @@ class PostsRetrieveSerializer(ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ('id', 'title', 'status', 'additional_info', 'body', 'date_created', 'author', 'likes', 'comments', 'liked_by_current_user')
+        fields = ('id', 'title', 'status', 'additional_info', 'body', 'date_created', 'author', 'likes', 'comments',
+                  'liked_by_current_user')
 
     def get_likes(self, obj):
         return PostLikes.objects.filter(post=obj).count()

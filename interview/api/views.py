@@ -64,6 +64,14 @@ class CreatePostView(viewsets.ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         return Response('Not implemented', status.HTTP_405_METHOD_NOT_ALLOWED)
 
+    def create(self, request, *args, **kwargs):
+        html = self.request.data['body'].get('html', None)
+        if not html:
+            return Response('Bad request', status.HTTP_400_BAD_REQUEST)
+        self.request.data['body'] = html
+        self.request.data['author'] = self.request.user.id
+        return super().create(request, *args, **kwargs)
+
     def retrieve(self, request, *args, **kwargs):
         return Response('Not implemented', status.HTTP_405_METHOD_NOT_ALLOWED)
 
@@ -97,4 +105,10 @@ class RetrievePostsView(viewsets.ModelViewSet):
 class PostLikeView(viewsets.ModelViewSet):
     serializer_class = PostLikeSerializer
     queryset = PostLikes.objects.all()
-    http_method_names = ('OPTIONS', 'POST', 'DELETE')
+
+    def create(self, request, *args, **kwargs):
+        if PostLikes.objects.filter(post_id=request.data['post'], user=self.request.user).exists():
+            PostLikes.objects.filter(post_id=request.data['post'], user=self.request.user).delete()
+            return Response('Successfully unliked', status.HTTP_204_NO_CONTENT)
+        PostLikes.objects.create(post_id=request.data['post'], user=self.request.user)
+        return Response('Successfully liked', status.HTTP_200_OK)
