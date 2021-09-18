@@ -15,9 +15,8 @@ class ScopeView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         professions = self.request.query_params.get('has_professions', False)
-        if professions:
-            return Scope.objects.filter(has_professions=True)
-        return Scope.objects.all()
+        questions = self.request.query_params.get('has_questions', True)
+        return Scope.objects.filter(has_professions=professions, has_questions=questions)
 
 
 class NewsView(viewsets.ModelViewSet):
