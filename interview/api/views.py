@@ -15,7 +15,7 @@ class ScopeView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         professions = self.request.query_params.get('has_professions', False)
-        questions = self.request.query_params.get('has_questions', True)
+        questions = self.request.query_params.get('has_questions', False)
         return Scope.objects.filter(has_professions=professions, has_questions=questions)
 
 
