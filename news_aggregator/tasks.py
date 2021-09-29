@@ -118,12 +118,19 @@ def parse_news():
                     link = link.get('href')
                 else:
                     continue
-                image = article.find('img').get('src')
+                try:
+                    image = article.find('img').get('src')
+                except:
+                    image = logo_url
                 title = article.find('div', {'class': 'media-catalog__tile-title'}).text[2:].strip().replace('\xa0',
                                                                                                              ' ')
                 check = Headline.objects.filter(url=prefix_skillbox + link).count()
                 if check > 0:
                     continue
+                if image != logo_url:
+                    image = grey_image(image)
+                else:
+                    pass
                 new_headline = Headline(title=title, image=image, url=prefix_skillbox + link)
                 news_array.append(new_headline)
 
@@ -138,10 +145,17 @@ def parse_news():
             a_tag = article.find('a', {'class': 'post-item__title h3 search_text'})
             link = a_tag.get('href')
             title = a_tag.text
-            image = article.find('img').get('src')
+            try:
+                image = article.find('img').get('src')
+            except:
+                image = logo_url
             check = Headline.objects.filter(url=prefix_gb + link).count()
             if check > 0:
                 continue
+            if image != logo_url:
+                image = grey_image(image)
+            else:
+                pass
             new_headline = Headline(title=title, image=image, url=prefix_gb + link)
             news_array.append(new_headline)
 
@@ -167,6 +181,10 @@ def parse_news():
             check = Headline.objects.filter(url=prefix_vedomosti + link).count()
             if check > 0:
                 continue
+            if image != logo_url:
+                image = grey_image(image)
+            else:
+                pass
             new_headline = Headline(title=title, image=image, url=prefix_vedomosti + link)
             news_array.append(new_headline)
 
