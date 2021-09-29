@@ -15,6 +15,7 @@ import uuid
 from interview.models.profession import Profession, ProfessionSalaries
 from InterviewBackend.settings import S3_CONFIG
 from datetime import datetime
+
 logo_url = "https://s3.eu-central-1.amazonaws.com/cti.bucket/cti_logo.png"
 
 # Upload the file
@@ -94,48 +95,82 @@ def parse_news():
             news_array.append(new_headline)
             counter_hh += 1
 
-        url_forbes = 'https://www.forbes.ru/svoi-biznes'
-        prefix_forbes = 'https://www.forbes.ru'
-        content_forbes = session.get(url_forbes, verify=False).content
-        soup_forbes = BSoup(content_forbes, "html.parser")
-        news_forbes = soup_forbes.find_all("div", {"class": "grid-cell__body"})
-        counter_forbes = 0
-        for article in news_forbes:
-            pre_link = article.find('a')
-            if pre_link:
-                link = prefix_forbes + pre_link['href']
-            else:
-                continue
-            check = Headline.objects.filter(url=link).count()
+        urls = ['https://skillbox.ru/media/?section=17', 'https://skillbox.ru/media/?section=22']
+        for url_skillbox in urls:
+            prefix_skillbox = 'https://www.skillbox.ru'
+            session = requests.Session()
+            content_skillbox = session.get(url_skillbox, verify=False).content
+            soup_skillbox = BSoup(content_skillbox, "html.parser")
+            header_news = soup_skillbox.find('div', {'class': 'important-block__banner row media-catalog__grid'})
+            header_image = header_news.find('img').get('src')
+            header_title = header_news.find('a', {'class': 'important-block__main-title'}).text[2:].strip().replace(
+                '\xa0', ' ')
+            header_link = header_news.find('a', {'class': 'important-block__main-title'}).get('href')
+            check = Headline.objects.filter(url=prefix_skillbox + header_link).count()
+            if check == 0:
+                new_headline = Headline(title=header_title, image=header_image, url=prefix_skillbox + header_link)
+                news_array.append(new_headline)
+            news_skillbox = soup_skillbox.find_all("div", {'class': ['media-catalog__tile']})
+            counter_skillbox = 0
+            for article in news_skillbox:
+                link = article.find('a', {'class': 'media-catalog__tile-link'})
+                if link:
+                    link = link.get('href')
+                else:
+                    continue
+                image = article.find('img').get('src')
+                title = article.find('div', {'class': 'media-catalog__tile-title'}).text[2:].strip().replace('\xa0',
+                                                                                                             ' ')
+                check = Headline.objects.filter(url=prefix_skillbox + link).count()
+                if check > 0:
+                    continue
+                new_headline = Headline(title=title, image=image, url=prefix_skillbox + link)
+                news_array.append(new_headline)
+
+        url_gb = 'https://gb.ru/posts/success_story'
+        prefix_gb = 'https://www.gb.ru'
+        session = requests.Session()
+        content_gb = session.get(url_gb, verify=False).content
+        soup_gb = BSoup(content_gb, "html.parser")
+        news_gb = soup_gb.find_all("div", {'class': ['post-item event']})
+        counter_gb = 0
+        for article in news_gb:
+            a_tag = article.find('a', {'class': 'post-item__title h3 search_text'})
+            link = a_tag.get('href')
+            title = a_tag.text
+            image = article.find('img').get('src')
+            check = Headline.objects.filter(url=prefix_gb + link).count()
             if check > 0:
                 continue
-            pre_header = article.find("div", {"class": "card-content__title"})
-            if pre_header:
-                header = pre_header.contents[0].strip()
-            pre_image = article.find("img")
-            if pre_image:
-                image = pre_image['data-src']
-            else:
-                inner_content = session.get(link, verify=False).content
-                inner_soup = BSoup(inner_content, "html.parser")
-                inner_image_div = inner_soup.find("div", {"class": "article__intro"})
-                pre_image = inner_image_div.find("img")
-                if pre_image:
-                    image = pre_image["data-src"]
-                else:
-                    image = logo_url
-            new_headline = Headline()
-            new_headline.title = header
-            new_headline.url = link
-            if image != logo_url:
-                new_headline.image = grey_image(image)
-            else:
-                new_headline.image = image
+            new_headline = Headline(title=title, image=image, url=prefix_gb + link)
             news_array.append(new_headline)
-            counter_forbes += 1
+
+        url_vedomosti = 'https://www.vedomosti.ru/rubrics/career/career_growth'
+        prefix_vedomosti = 'https://www.vedomosti.ru'
+        session = requests.Session()
+        content_vedomosti = session.get(url_vedomosti, verify=False).content
+        soup_vedomosti = BSoup(content_vedomosti, "html.parser")
+        news_vedomosti = soup_vedomosti.find_all("div", {'class': ['grid-cell__body']})
+        counter_vedomosti = 0
+        for article in news_vedomosti:
+            content = article.find('div', {"class": 'card-article__content'})
+            if not content:
+                continue
+            link = article.find('a').get('href')
+            image_tag = content.find('img')
+            if image_tag:
+                # print(image_tag)
+                image = image_tag.get('data-thumbnail')
+            else:
+                image = logo_url
+            title = content.find('span', {'class': 'card-article__title'}).text
+            check = Headline.objects.filter(url=prefix_vedomosti + link).count()
+            if check > 0:
+                continue
+            new_headline = Headline(title=title, image=image, url=prefix_vedomosti + link)
+            news_array.append(new_headline)
 
         url_vc = 'https://www.vc.ru/hr'
-        prefix_vc = 'https://www.vc.ru'
         content_vc = session.get(url_vc, verify=False).content
         soup = BSoup(content_vc, "html.parser")
         news_vc = soup.find_all("div", {"class": "feed__item l-island-round"})
