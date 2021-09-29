@@ -108,6 +108,7 @@ def parse_news():
             header_link = header_news.find('a', {'class': 'important-block__main-title'}).get('href')
             check = Headline.objects.filter(url=prefix_skillbox + header_link).count()
             if check == 0:
+                header_image = grey_image(header_image)
                 new_headline = Headline(title=header_title, image=header_image, url=prefix_skillbox + header_link)
                 news_array.append(new_headline)
             news_skillbox = soup_skillbox.find_all("div", {'class': ['media-catalog__tile']})
