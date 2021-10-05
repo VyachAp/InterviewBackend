@@ -150,8 +150,8 @@ CRON_CLASSES = [
     "news_aggregator.cron.MyCronJob"]
 
 # ============== AMAZON S3 ================
-AWS_ACCESS_KEY_ID = "AKIA6OSJTXSRDZGBCSDO"
-AWS_SECRET_ACCESS_KEY = "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"
+AWS_ACCESS_KEY_ID = "AKIA6OSJTXSRBMFWR2DS"
+AWS_SECRET_ACCESS_KEY = "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"
 
 # ============== CELERY ==================
 CELERY_BROKER_URL = 'redis://localhost:6379'
