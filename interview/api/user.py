@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from twilio.rest import Client
 from interview.models import Account
-from interview.serializers.serializers import UserSerializer, AccountLoginSerializer, AccountVerifySerializer
+from interview.serializers import UserSerializer, AccountLoginSerializer, AccountVerifySerializer
 import logging
 from news_aggregator.tasks import upload_file
 import json

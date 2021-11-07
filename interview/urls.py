@@ -11,3 +11,4 @@ router.register(r"suggest", views.SuggestedQuestionsView, basename='SuggestQuest
 router.register(r"posts", views.RetrievePostsView, basename='Post')
 router.register(r"create_post", views.CreatePostView, basename='CreatePost')
 router.register(r"like_post", views.PostLikeView, basename='LikePost')
+router.register(r"feedback", views.FeedbackView, basename='feedback')

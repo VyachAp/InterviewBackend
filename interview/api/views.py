@@ -1,8 +1,8 @@
 from rest_framework import viewsets
-from interview.serializers.serializers import ScopeSerializer, SubScopeSerializer, ProfessionSerializer, \
+from interview.serializers import ScopeSerializer, SubScopeSerializer, ProfessionSerializer, \
     QuestionScopeSerializer, SuggestedQuestionsSerializer, PostCreateSerializer, PostsRetrieveSerializer,\
-    PostLikeSerializer
-from interview.models import Scope, SubScope, Profession, SuggestedQuestions, Post, PostLikes
+    PostLikeSerializer, FeedbackSerializer
+from interview.models import Scope, SubScope, Profession, SuggestedQuestions, Post, PostLikes, Feedback
 from news_aggregator.serializers import NewsSerializer
 from news_aggregator.models import Headline
 from rest_framework.views import APIView
@@ -47,7 +47,10 @@ class ProfessionsView(viewsets.ModelViewSet):
     serializer_class = ProfessionSerializer
 
     def get_queryset(self):
-        return Profession.objects.filter(scope=self.request.query_params['scope'])
+        if self.request.query_params.get('scope', None):
+            return Profession.objects.filter(scope=self.request.query_params['scope'])
+        else:
+            return Profession.objects.all()
 
 
 class SuggestedQuestionsView(viewsets.ModelViewSet):
@@ -89,21 +92,9 @@ class CreatePostView(viewsets.ModelViewSet):
         return Response('Not implemented', status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-class RetrievePostsView(viewsets.ModelViewSet):
+class RetrievePostsView(viewsets.ReadOnlyModelViewSet):
     serializer_class = PostsRetrieveSerializer
     queryset = Post.objects.filter(status='Published')
-
-    def create(self, request, *args, **kwargs):
-        return Response('Not implemented', status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def partial_update(self, request, *args, **kwargs):
-        return Response('Not implemented', status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def update(self, request, *args, **kwargs):
-        return Response('Not implemented', status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def destroy(self, request, *args, **kwargs):
-        return Response('Not implemented', status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class PostLikeView(viewsets.ModelViewSet):
@@ -116,3 +107,10 @@ class PostLikeView(viewsets.ModelViewSet):
             return Response('Successfully unliked', status.HTTP_204_NO_CONTENT)
         PostLikes.objects.create(post_id=request.data['post'], user=self.request.user)
         return Response('Successfully liked', status.HTTP_200_OK)
+
+
+class FeedbackView(mixins.CreateModelMixin,
+                   viewsets.GenericViewSet):
+    serializer_class = FeedbackSerializer
+    queryset = Feedback.objects.all()
+
