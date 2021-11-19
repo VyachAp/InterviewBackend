@@ -5,3 +5,4 @@ from .question import QuestionSerializer, SuggestedQuestionsSerializer, Question
 from .scope import ScopeSerializer
 from .subscope import SubScopeSerializer
 from .feedback import FeedbackSerializer
+from .course import CourseSerializer

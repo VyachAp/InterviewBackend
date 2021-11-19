@@ -1,8 +1,8 @@
 from rest_framework import viewsets
 from interview.serializers import ScopeSerializer, SubScopeSerializer, ProfessionSerializer, \
     QuestionScopeSerializer, SuggestedQuestionsSerializer, PostCreateSerializer, PostsRetrieveSerializer,\
-    PostLikeSerializer, FeedbackSerializer
-from interview.models import Scope, SubScope, Profession, SuggestedQuestions, Post, PostLikes, Feedback
+    PostLikeSerializer, FeedbackSerializer, CourseSerializer
+from interview.models import Scope, SubScope, Profession, SuggestedQuestions, Post, PostLikes, Feedback, Course
 from news_aggregator.serializers import NewsSerializer
 from news_aggregator.models import Headline
 from rest_framework.views import APIView
@@ -114,3 +114,9 @@ class FeedbackView(mixins.CreateModelMixin,
     serializer_class = FeedbackSerializer
     queryset = Feedback.objects.all()
 
+
+class CourseView(viewsets.ModelViewSet):
+    serializer_class = CourseSerializer
+
+    def get_queryset(self):
+        return Course.objects.filter(profession=self.request.query_params["profession"])

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from interview.models import Scope, Profession, Questions, SubScope, ProfessionSalaries, ProfessionLinks,\
-    SuggestedQuestions, Account, Post, PostLikes, PostComments, NotifyUser, Feedback
+    SuggestedQuestions, Account, Post, PostLikes, PostComments, NotifyUser, Feedback, Course
 
 # Register your models here.
 
@@ -17,3 +17,4 @@ admin.site.register(PostLikes)
 admin.site.register(PostComments)
 admin.site.register(NotifyUser)
 admin.site.register(Feedback)
+admin.site.register(Course)

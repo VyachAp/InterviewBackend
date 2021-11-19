@@ -5,3 +5,4 @@ from .notify import NotifyUser
 from .question import Questions, SuggestedQuestions
 from .user import Account
 from .feedback import Feedback
+from .courses import Course
