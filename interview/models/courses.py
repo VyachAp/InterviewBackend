@@ -5,6 +5,7 @@ from .profession import Profession
 class Course(models.Model):
     profession = models.ForeignKey(Profession, on_delete=models.CASCADE)
     link = models.URLField("Ссылка", null=True, blank=True)
+    name = models.CharField("Название компании", max_length=128, null=True, blank=True)
 
     class Meta:
         app_label = "interview"
