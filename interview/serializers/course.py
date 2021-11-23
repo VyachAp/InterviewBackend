@@ -5,4 +5,4 @@ from interview.models import Course
 class CourseSerializer(ModelSerializer):
     class Meta:
         model = Course
-        fields = ('id', 'link')
+        fields = ('id', 'link', 'name')
