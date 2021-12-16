@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from interview.api.user import UserLogin, UserVerify, UserDetail
+from interview.api.views import UploadData
 from interview.urls import router
 
 
@@ -25,4 +26,5 @@ urlpatterns = [
     path("user/<int:id>/", UserDetail.as_view(), name='user'),
     path('login/', UserLogin.as_view(), name='login'),
     path('verify/', UserVerify.as_view(), name='verify'),
+    path('upload/', UploadData.as_view(), name='upload')
 ]

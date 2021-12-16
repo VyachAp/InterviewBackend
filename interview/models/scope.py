@@ -23,6 +23,7 @@ class SubScope(models.Model):
 
     name = models.CharField("Название", max_length=64)
     scope = models.ForeignKey(Scope, on_delete=models.PROTECT)
+    icon = models.CharField("Название иконки", max_length=32, null=True)
 
     class Meta:
         app_label = "interview"

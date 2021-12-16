@@ -1,13 +1,16 @@
 from rest_framework import viewsets
 from interview.serializers import ScopeSerializer, SubScopeSerializer, ProfessionSerializer, \
     QuestionScopeSerializer, SuggestedQuestionsSerializer, PostCreateSerializer, PostsRetrieveSerializer,\
-    PostLikeSerializer, FeedbackSerializer, CourseSerializer
-from interview.models import Scope, SubScope, Profession, SuggestedQuestions, Post, PostLikes, Feedback, Course
+    PostLikeSerializer, FeedbackSerializer, CourseSerializer, QuestionSerializer
+from interview.models import Scope, SubScope, Profession, SuggestedQuestions, Post, PostLikes, Feedback, Course, Questions
 from news_aggregator.serializers import NewsSerializer
 from news_aggregator.models import Headline
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, mixins, generics
+import pandas as pd
+import os
+import sys
 
 
 class ScopeView(viewsets.ModelViewSet):
@@ -37,10 +40,19 @@ class SubScopeView(viewsets.ModelViewSet):
 
 
 class QuestionsView(viewsets.ModelViewSet):
+    # Ver.0.1.5
     serializer_class = QuestionScopeSerializer
 
     def get_queryset(self):
         return Scope.objects.filter(id=self.request.query_params['scope'])
+
+
+class NewQuestionsView(viewsets.ModelViewSet):
+    # Ver 0.1.6
+    serializer_class = QuestionSerializer
+
+    def get_queryset(self):
+        return Questions.objects.filter(subscope_id=self.request.query_params['subscope'])
 
 
 class ProfessionsView(viewsets.ModelViewSet):
@@ -120,3 +132,51 @@ class CourseView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Course.objects.filter(profession=self.request.query_params["profession"])
+
+
+class UploadData(APIView):
+
+    def post(self, request, *args, **kwargs):
+        wses = {
+            'Вопросы': Questions,
+            'Профессии': Profession
+        }
+        work_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
+        file_path = f'{work_dir}/fixtures/update_questions.xlsx'
+        worksheet = pd.ExcelFile(file_path)
+        for sheet in worksheet.sheet_names:
+            cur_model = wses[sheet]
+            df = pd.read_excel(worksheet, sheet, header=0)
+            for index, row in df.iterrows():
+                if cur_model == Questions:
+                    check_question = Questions.objects.filter(question=row[3]).exists()
+                    if not check_question:
+                        check_sphere = Scope.objects.filter(name=row[1]).exists()
+                        if not check_sphere:
+                            scope = Scope(name=row[1])
+                            scope.save()
+                            sub_scope = SubScope(name=row[2], scope_id=scope.id)
+                            sub_scope.save()
+                        else:
+                            check_sub_scope = SubScope.objects.filter(name=row[2], scope=Scope.objects.filter(name=row[1]).first()).exists()
+                            if not check_sub_scope:
+                                sub_scope = SubScope(name=row[2], scope=Scope.objects.filter(name=row[1]).first())
+                                sub_scope.save()
+                            else:
+                                sub_scope = SubScope.objects.filter(name=row[2], scope=Scope.objects.filter(name=row[1]).first()).first()
+
+                        question = Questions(question=row[3], answer=row[4], subscope_id=sub_scope.id)
+                        question.save()
+                else:
+                    check_profession = Profession.objects.filter(name=row[2]).exists()
+                    if not check_profession:
+                        check_sphere = Scope.objects.filter(name=row[1]).exists()
+                        if not check_sphere:
+                            scope = Scope(name=row[1])
+                            scope.save()
+                        else:
+                            scope = Scope.objects.filter(name=row[1]).first()
+                        profession = Profession(name=row[2], english_name=row[3], description=row[4], scope_id=scope.id)
+                        profession.save()
+
+        return Response({'data': worksheet.sheet_names}, status=200)
