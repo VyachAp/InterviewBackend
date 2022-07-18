@@ -141,17 +141,17 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 # ======= TWILIO SETTINGS =============
-TWILIO_ACCOUNT_SID = "AC5d113d0533b67cab021d831918d3cde1"
-TWILIO_AUTH_TOKEN = "b6751c2573ed58edf690b604c7483968"
-VERIFY_SID = "VA4ac3e17804c3a6add46a2c0e0087ed3a"
+TWILIO_ACCOUNT_SID = ""
+TWILIO_AUTH_TOKEN = ""
+VERIFY_SID = ""
 
 # ============== CRON JOBS ===============
 CRON_CLASSES = [
     "news_aggregator.cron.MyCronJob"]
 
 # ============== AMAZON S3 ================
-AWS_ACCESS_KEY_ID = "AKIA6OSJTXSRBMFWR2DS"
-AWS_SECRET_ACCESS_KEY = "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"
+AWS_ACCESS_KEY_ID = ""
+AWS_SECRET_ACCESS_KEY = ""
 
 # ============== CELERY ==================
 CELERY_BROKER_URL = 'redis://localhost:6379'
